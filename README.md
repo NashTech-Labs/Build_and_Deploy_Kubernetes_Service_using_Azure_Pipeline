@@ -1,6 +1,6 @@
 ## Description
 
-Here, In this template we will create a Basic Kubernetes Cluster using Managed Identity.
+Here, In this template, we will build and deploy the Kubernetes service via an Azure CLI and build in tasks for the Azure pipeline build and deployment.
 
 
 ---
