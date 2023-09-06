@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sample-deployment
+  labels:
+    app: sampleApplication
+spec:
+  replicas: ${REPLICA_COUNT_VV}
+  selector:
+    matchLabels:
+      app: sampleApplication
+  template:
+    metadata:
+      labels:
+        app: sampleApplication
+    spec:
+      containers:
+        - name: sampleApplication
+          image: ${IMAGE_NAME_VV}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ADO_PAT_VV
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: ADO_PAT_VV
+            - name: GITHUB_PAT_VV
+              valueFrom:
+                secretKeyRef:
+                  name: env-secrets
+                  key: GITHUB_PAT_VV

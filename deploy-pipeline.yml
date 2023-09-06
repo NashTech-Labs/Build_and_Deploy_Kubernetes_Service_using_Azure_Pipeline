@@ -1,0 +1,38 @@
+- stage: Deploy
+  displayName: Deploy stage
+  dependsOn: Build
+  jobs:
+    - deployment: Deploy
+      displayName: Deploy job
+      pool: $(agent-name)
+
+      environment: 'myenv.aksnamespace' #customize with your environment
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+              - task: DownloadPipelineArtifact@2
+                inputs:
+                  artifactName: 'manifests'
+                  downloadPath: '$(System.ArtifactsDirectory)/manifests'
+
+              - task: KubernetesManifest@0
+                displayName: Create imagePullSecret
+                inputs:
+                  action: createSecret
+                  secretName: $(imagePullSecret_VV)
+                  namespace: $(k8sNamespace_VV)
+                  dockerRegistryEndpoint: $(dockerRegistryServiceConnection_VV)
+
+              - task: KubernetesManifest@0
+                displayName: Deploy to Kubernetes cluster
+                inputs:
+                  action: deploy
+                  namespace: $(k8sNamespace_VV)
+                  manifests: |
+                    $(System.ArtifactsDirectory)/manifests/deployment.yml
+                    $(System.ArtifactsDirectory)/manifests/service.yml
+                  imagePullSecrets: |
+                    $(imagePullSecret_VV)
+                  containers: |
+                    $(containerRegistry_VV)/$(imageRepository_VV):$(tag_VV)
